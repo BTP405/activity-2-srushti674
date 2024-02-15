@@ -1,15 +1,31 @@
+import matplotlib.pyplot as plt
+
 def graphSnowfall(t):
-    try:
-        with open(t, 'r') as file:
-            data = file.readlines()
-            cities = [line.split()[0] for line in data]
-            snowfalls = [float(line.split()[1]) for line in data]
+    # Read data from the file
+    with open(t, 'r') as file:
+        snowfall_data = [float(line.strip()) for line in file if line.strip()]
 
-            plt.bar(cities, snowfalls, color='blue')
-            plt.xlabel('Cities')
-            plt.ylabel('Snowfall (inches)')
-            plt.title('Snowfall Data')
-            plt.show()
+    # Aggregate data into 10 cm ranges
+    range_counts = {}
+    for snowfall in snowfall_data:
+        range_start = int(snowfall // 10) * 10
+        range_end = range_start + 10
 
-    except FileNotFoundError:
-        print(f"Error: File '{t}' not found.")
+        # Update the count for the corresponding range
+        key = f"{range_start}-{range_end}"
+        range_counts[key] = range_counts.get(key, 0) + 1
+
+    # Extract x and y values for the bar chart
+    ranges, counts = zip(*sorted(range_counts.items()))
+
+    # Plotting the bar graph
+    plt.bar(ranges, counts, color='blue')
+    plt.xlabel('Snowfall Range (cm)')
+    plt.ylabel('Number of Occurrences')
+    plt.title('Snowfall Accumulation Distribution')
+    plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readability
+    plt.show()
+    plt.savefig('snowfall.png')
+    
+# Example usage:
+graphSnowfall('snowfall_data.txt')
